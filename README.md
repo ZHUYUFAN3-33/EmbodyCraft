@@ -3,11 +3,11 @@
 EmbodyCraft captures muscle activity and fingertip vibrations during pottery, translating them into tactile cues for post-action reflection. Co-designed with Okinawan potters, the system enhances video-based review by revealing subtle force patterns and deepening skill understanding.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/4e79a25e-d745-4e20-8c82-549069dfd7ba" width="500"/>
+  <img src="https://github.com/user-attachments/assets/4e79a25e-d745-4e20-8c82-549069dfd7ba" width="1200"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7b84fd54-fe65-429d-b1f3-8bdaa60791f8" width="500"/>
+  <img src="https://github.com/user-attachments/assets/7b84fd54-fe65-429d-b1f3-8bdaa60791f8" width="1200"/>
 </p>
 
 
