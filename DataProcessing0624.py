@@ -15,27 +15,33 @@ def process_and_plot_v3(file_path, sampling_rate, num_channels, gauss_sigma):
     try:
         # Load CSV
         df = pd.read_csv(file_path, delimiter=',')
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df['timestamp'] = (df['timestamp'] - df['timestamp'].iloc[0]).dt.total_seconds()
+
+        # Detect timestamp column (case insensitive)
+        if 'timestamp' in df.columns:
+            time_col = 'timestamp'
+        elif 'Timestamp' in df.columns:
+            time_col = 'Timestamp'
+        else:
+            raise ValueError("CSV must contain a 'timestamp' column")
+
+        df[time_col] = pd.to_datetime(df[time_col])
+        df[time_col] = (df[time_col] - df[time_col].iloc[0]).dt.total_seconds()
         df.iloc[:, 1:] = df.iloc[:, 1:].astype(float)
 
         # Interpolation and resampling
         target_interval = 1 / sampling_rate
-        new_timestamps = np.arange(df.iloc[0, 0], df.iloc[-1, 0], target_interval)
-        interpolated_data = pd.DataFrame({'Timestamp': new_timestamps})
+        new_timestamps = np.arange(df[time_col].iloc[0], df[time_col].iloc[-1] + target_interval, target_interval)
+        interpolated_data = pd.DataFrame({time_col: new_timestamps})
         for col in df.columns[1:num_channels + 1]:
-            interpolated_data[col] = np.interp(new_timestamps, df['timestamp'], df[col])
+            interpolated_data[col] = np.interp(new_timestamps, df[time_col], df[col])
 
         # Baseline correction
         calibrated_data = interpolated_data.copy()
         N = 45
         for col in calibrated_data.columns[1:]:
-            baseline = np.mean(calibrated_data[col][:N])
+            baseline = np.mean(calibrated_data[col].head(N))
             calibrated_data[col] = calibrated_data[col] - baseline
-        calibrated_data[calibrated_data < 0] = 0
-
-        # Copy for comparison
-        preprocessed_data = calibrated_data.copy()
+            calibrated_data[col] = calibrated_data[col].clip(lower=0)
 
         # Normalize per channel
         normalized_data = calibrated_data.copy()
@@ -82,7 +88,7 @@ def process_and_plot_v3(file_path, sampling_rate, num_channels, gauss_sigma):
             title="Save processed data"
         )
         if save_path:
-            smoothed_data.to_csv(save_path, header=False, index=False)
+            smoothed_data.to_csv(save_path, header=True, index=False)
 
     except Exception as e:
         print(e)
